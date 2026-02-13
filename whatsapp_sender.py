@@ -18,9 +18,8 @@ HOW TO PREPARE contacts.csv:
 4. Example contacts.csv content:
    
    number
-   771234567
-   761234567
-   701234567
+   7XXXXXXXX
+   7XXXXXXXX
 
 HOW TO RUN:
 -----------
@@ -194,8 +193,8 @@ def main():
         print()
         print("Please create a contacts.csv file with the following format:")
         print("number")
-        print("771234567")
-        print("761234567")
+        print("7XXXXXXXX")
+        print("7XXXXXXXX")
         print()
         return
     

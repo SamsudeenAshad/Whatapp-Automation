@@ -1,0 +1,65 @@
+Date: 13/2/2026
+Time: 23:59
+Phone Number: +94771234567
+Message: Hello! 👋This is an automated message sent via WhatsApp Web.Thank you!
+--------------------
+Date: 13/2/2026
+Time: 23:59
+Phone Number: +94761234567
+Message: Hello! 👋This is an automated message sent via WhatsApp Web.Thank you!
+--------------------
+Date: 14/2/2026
+Time: 0:1
+Phone Number: +94771234567
+Message: Hello! 👋This is an automated message sent via WhatsApp Web.Thank you!
+--------------------
+Date: 14/2/2026
+Time: 0:1
+Phone Number: +94761234567
+Message: Hello! 👋This is an automated message sent via WhatsApp Web.Thank you!
+--------------------
+Date: 14/2/2026
+Time: 0:2
+Phone Number: +94701234567
+Message: Hello! 👋This is an automated message sent via WhatsApp Web.Thank you!
+--------------------
+Date: 14/2/2026
+Time: 0:4
+Phone Number: +94771234567
+Message: Hello! 👋This is an automated message sent via WhatsApp Web.Thank you!
+--------------------
+Date: 14/2/2026
+Time: 0:5
+Phone Number: +94761234567
+Message: Hello! 👋This is an automated message sent via WhatsApp Web.Thank you!
+--------------------
+Date: 14/2/2026
+Time: 0:5
+Phone Number: +94701234567
+Message: Hello! 👋This is an automated message sent via WhatsApp Web.Thank you!
+--------------------
+Date: 14/2/2026
+Time: 0:7
+Phone Number: +94771234567
+Message: Hello! 👋This is an automated message sent via WhatsApp Web.Thank you!
+--------------------
+Date: 14/2/2026
+Time: 0:7
+Phone Number: +94761234567
+Message: Hello! 👋This is an automated message sent via WhatsApp Web.Thank you!
+--------------------
+Date: 14/2/2026
+Time: 0:8
+Phone Number: +94701234567
+Message: Hello! 👋This is an automated message sent via WhatsApp Web.Thank you!
+--------------------
+Date: 14/2/2026
+Time: 0:9
+Phone Number: +94771234567
+Message: Hello! 👋This is an automated message sent via WhatsApp Web.Thank you!
+--------------------
+Date: 14/2/2026
+Time: 0:11
+Phone Number: +94771234567
+Message: Hello! 👋This is an automated message sent via WhatsApp Web.Thank you!
+--------------------

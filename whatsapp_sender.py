@@ -43,6 +43,7 @@ import csv
 import time
 import random
 import os
+import pyautogui  # For pressing Enter key to send message
 
 # ============================================
 # CONFIGURATION - CHANGE THESE VALUES AS NEEDED
@@ -66,10 +67,10 @@ MIN_DELAY = 15  # Minimum delay
 MAX_DELAY = 20  # Maximum delay
 
 # Wait time for WhatsApp Web to load (in seconds)
-WAIT_TIME = 15
+WAIT_TIME = 20
 
 # Time to wait before closing the tab (in seconds)
-CLOSE_TAB_DELAY = 3
+CLOSE_TAB_DELAY = 5
 
 
 # ============================================
@@ -120,8 +121,13 @@ def format_phone_number(number, country_code):
     """
     Formats the phone number by adding country code.
     
+    Handles different formats:
+    - Starts with '7' → Add +94 (e.g., 771234567 → +94771234567)
+    - Starts with '94' → Just add + (e.g., 94771234567 → +94771234567)
+    - Starts with '0' → Remove 0 and add +94 (e.g., 0771234567 → +94771234567)
+    
     Args:
-        number: The phone number without country code
+        number: The phone number in any format
         country_code: The country code to add (e.g., '+94')
         
     Returns:
@@ -130,12 +136,19 @@ def format_phone_number(number, country_code):
     # Remove any spaces, dashes, or dots from the number
     cleaned_number = number.replace(" ", "").replace("-", "").replace(".", "")
     
-    # Remove leading zero if present
-    if cleaned_number.startswith("0"):
-        cleaned_number = cleaned_number[1:]
-    
-    # Add country code
-    formatted_number = country_code + cleaned_number
+    # Check different formats and format accordingly
+    if cleaned_number.startswith("94"):
+        # Already has country code, just add +
+        formatted_number = "+" + cleaned_number
+    elif cleaned_number.startswith("0"):
+        # Remove leading zero and add country code
+        formatted_number = country_code + cleaned_number[1:]
+    elif cleaned_number.startswith("7"):
+        # Local number starting with 7, add country code
+        formatted_number = country_code + cleaned_number
+    else:
+        # For any other format, just add country code
+        formatted_number = country_code + cleaned_number
     
     return formatted_number
 
@@ -165,9 +178,19 @@ def send_whatsapp_message(phone_number, message):
             phone_no=phone_number,
             message=message,
             wait_time=WAIT_TIME,
-            tab_close=True,
+            tab_close=False,  # Don't auto-close, we'll handle it
             close_time=CLOSE_TAB_DELAY
         )
+        
+        # Wait a moment then press Enter to send (in case it didn't auto-send)
+        time.sleep(2)
+        pyautogui.press('enter')
+        
+        # Wait before closing the tab
+        time.sleep(CLOSE_TAB_DELAY)
+        
+        # Close the tab using Ctrl+W
+        pyautogui.hotkey('ctrl', 'w')
         
         print(f"✅ Message sent successfully to {phone_number}")
         return True

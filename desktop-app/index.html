@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp Bulk Sender</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'Inter', sans-serif;
+      -webkit-app-region: no-drag;
+    }
+
+    body {
+      background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 25%, #7dd3fc 50%, #38bdf8 75%, #0ea5e9 100%);
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .title-bar {
+      -webkit-app-region: drag;
+    }
+
+    .title-bar button {
+      -webkit-app-region: no-drag;
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1), inset 0 0 32px rgba(255, 255, 255, 0.1);
+    }
+
+    .glass-button {
+      background: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      transition: all 0.3s ease;
+    }
+
+    .glass-button:hover {
+      background: rgba(255, 255, 255, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 40px rgba(0, 163, 255, 0.3);
+    }
+
+    .glass-input {
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      transition: all 0.3s ease;
+    }
+
+    .glass-input:focus {
+      background: rgba(255, 255, 255, 0.6);
+      border-color: rgba(0, 163, 255, 0.5);
+      box-shadow: 0 0 20px rgba(0, 163, 255, 0.2);
+      outline: none;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 50%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .step-active {
+      background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
+      box-shadow: 0 0 20px rgba(14, 165, 233, 0.5);
+    }
+
+    .step-completed {
+      background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+    }
+
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      animation: float 8s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) translateX(0px); }
+      50% { transform: translateY(-20px) translateX(10px); }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loader {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #0ea5e9;
+      animation: spin 1s linear infinite;
+    }
+
+    .contact-item {
+      transition: all 0.2s ease;
+    }
+
+    .contact-item:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 163, 255, 0.5);
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body class="select-none">
+  <!-- Animated Background Bubbles -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden">
+    <div class="bubble w-64 h-64 -top-20 -left-20" style="animation-delay: 0s;"></div>
+    <div class="bubble w-48 h-48 top-1/3 right-10" style="animation-delay: 1s;"></div>
+    <div class="bubble w-32 h-32 bottom-20 left-1/4" style="animation-delay: 2s;"></div>
+    <div class="bubble w-40 h-40 bottom-1/3 right-1/4" style="animation-delay: 0.5s;"></div>
+  </div>
+
+  <!-- Custom Title Bar -->
+  <div class="title-bar fixed top-0 left-0 right-0 h-10 bg-white/10 backdrop-blur flex items-center justify-between px-4 z-50">
+    <div class="flex items-center gap-2">
+      <span class="text-sky-700 font-semibold text-sm">💬 WhatsApp Bulk Sender</span>
+    </div>
+    <div class="flex gap-2">
+      <button onclick="minimizeWindow()" class="w-8 h-8 rounded-lg hover:bg-white/20 flex items-center justify-center text-sky-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+      </button>
+      <button onclick="maximizeWindow()" class="w-8 h-8 rounded-lg hover:bg-white/20 flex items-center justify-center text-sky-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+      </button>
+      <button onclick="closeWindow()" class="w-8 h-8 rounded-lg hover:bg-red-500 hover:text-white flex items-center justify-center text-sky-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="pt-14 px-6 pb-6 h-screen overflow-y-auto">
+    <div class="max-w-4xl mx-auto">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center gap-3 mb-3">
+          <div class="w-14 h-14 rounded-2xl glass flex items-center justify-center">
+            <span class="text-3xl">💬</span>
+          </div>
+          <h1 class="text-4xl font-bold gradient-text">WhatsApp Bulk Sender</h1>
+        </div>
+        <p class="text-sky-700/80">Send messages to multiple contacts automatically ✨</p>
+      </div>
+
+      <!-- Step Indicators -->
+      <div class="flex justify-center items-center gap-4 mb-8">
+        <div class="flex items-center">
+          <div id="step1-indicator" class="w-11 h-11 rounded-full flex items-center justify-center text-white font-semibold step-active">
+            <span>1</span>
+          </div>
+          <div id="step1-line" class="w-14 h-1 mx-2 rounded-full bg-white/30"></div>
+        </div>
+        <div class="flex items-center">
+          <div id="step2-indicator" class="w-11 h-11 rounded-full flex items-center justify-center font-semibold bg-white/30 text-sky-600">
+            <span>2</span>
+          </div>
+          <div id="step2-line" class="w-14 h-1 mx-2 rounded-full bg-white/30"></div>
+        </div>
+        <div class="flex items-center">
+          <div id="step3-indicator" class="w-11 h-11 rounded-full flex items-center justify-center font-semibold bg-white/30 text-sky-600">
+            <span>3</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step Labels -->
+      <div class="flex justify-center gap-12 mb-6 text-sm">
+        <span id="step1-label" class="text-sky-700 font-medium">Connect</span>
+        <span id="step2-label" class="text-sky-600/60">Add Contacts</span>
+        <span id="step3-label" class="text-sky-600/60">Send Messages</span>
+      </div>
+
+      <!-- Main Card -->
+      <div class="glass-card p-8">
+        <!-- Step 1: Connect WhatsApp -->
+        <div id="step1" class="step-content">
+          <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold text-sky-800 mb-2">Connect WhatsApp Web</h2>
+            <p class="text-sky-600/80">Open WhatsApp Web and scan the QR code to login</p>
+          </div>
+
+          <div class="flex flex-col items-center gap-6 py-6">
+            <div id="connect-status" class="w-44 h-44 glass rounded-3xl flex items-center justify-center">
+              <div class="text-center">
+                <span class="text-5xl mb-3 block">🔗</span>
+                <p class="text-sky-600 text-sm">Click to connect</p>
+              </div>
+            </div>
+
+            <button id="connect-btn" onclick="openWhatsApp()" class="glass-button px-8 py-4 rounded-2xl text-sky-700 font-semibold flex items-center gap-3">
+              <span class="text-xl">💬</span>
+              Open WhatsApp Web
+            </button>
+
+            <p class="text-sky-600/60 text-sm text-center max-w-md">
+              A new window will open with WhatsApp Web. Scan the QR code with your phone to login.
+            </p>
+          </div>
+
+          <div class="flex justify-end mt-4">
+            <button id="step1-next" onclick="goToStep(2)" disabled class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold bg-gray-300/50 text-gray-500 cursor-not-allowed">
+              Next Step
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2: Add Contacts -->
+        <div id="step2" class="step-content hidden">
+          <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold text-sky-800 mb-2">Add Your Contacts</h2>
+            <p class="text-sky-600/80">Upload a CSV file or enter phone numbers manually</p>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <!-- CSV Upload -->
+            <div class="glass rounded-2xl p-5">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-sky-500/20 flex items-center justify-center">
+                  <span class="text-xl">📄</span>
+                </div>
+                <h3 class="font-semibold text-sky-800">Upload CSV</h3>
+              </div>
+              <label class="block cursor-pointer">
+                <div class="border-2 border-dashed border-sky-300/50 rounded-xl p-5 text-center hover:border-sky-400/70 transition-colors">
+                  <span class="text-3xl block mb-2">📤</span>
+                  <p class="text-sky-600 text-sm">Click to upload</p>
+                  <p class="text-sky-500/60 text-xs mt-1">Column: "number"</p>
+                </div>
+                <input type="file" accept=".csv" onchange="handleFileUpload(event)" class="hidden">
+              </label>
+            </div>
+
+            <!-- Manual Entry -->
+            <div class="glass rounded-2xl p-5">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-sky-500/20 flex items-center justify-center">
+                  <span class="text-xl">📱</span>
+                </div>
+                <h3 class="font-semibold text-sky-800">Add Manually</h3>
+              </div>
+              <div class="flex gap-2">
+                <input type="text" id="new-number" placeholder="Enter phone number" onkeypress="if(event.key==='Enter')addNumber()" class="glass-input flex-1 px-4 py-3 rounded-xl text-sky-800 placeholder-sky-400">
+                <button onclick="addNumber()" class="glass-button px-4 py-3 rounded-xl text-sky-600 font-bold text-xl">+</button>
+              </div>
+              <p class="text-sky-500/60 text-xs mt-2">Format: 771234567 or 0771234567</p>
+            </div>
+          </div>
+
+          <!-- Contacts List -->
+          <div id="contacts-section" class="glass rounded-2xl p-5 mb-6 hidden">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                  <span class="text-xl">👥</span>
+                </div>
+                <h3 class="font-semibold text-sky-800">Contacts (<span id="contact-count">0</span>)</h3>
+              </div>
+              <button onclick="clearContacts()" class="text-red-400 hover:text-red-500 text-sm flex items-center gap-1">
+                <span>🗑️</span> Clear All
+              </button>
+            </div>
+            <div id="contacts-list" class="max-h-40 overflow-y-auto space-y-2"></div>
+          </div>
+
+          <!-- Navigation -->
+          <div class="flex justify-between">
+            <button onclick="goToStep(1)" class="glass-button flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sky-600">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+              Back
+            </button>
+            <button id="step2-next" onclick="goToStep(3)" disabled class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold bg-gray-300/50 text-gray-500 cursor-not-allowed">
+              Next Step
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 3: Send Messages -->
+        <div id="step3" class="step-content hidden">
+          <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold text-sky-800 mb-2">Compose Your Message</h2>
+            <p class="text-sky-600/80">Write your message and send to <span id="send-count">0</span> contacts</p>
+          </div>
+
+          <!-- Message Input -->
+          <div class="glass rounded-2xl p-5 mb-6">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-xl bg-sky-500/20 flex items-center justify-center">
+                <span class="text-xl">✨</span>
+              </div>
+              <h3 class="font-semibold text-sky-800">Your Message</h3>
+            </div>
+            <textarea id="message-input" placeholder="Type your message here... ✨" rows="4" class="w-full glass-input px-4 py-3 rounded-xl text-sky-800 placeholder-sky-400 resize-none"></textarea>
+            <div class="flex justify-between mt-2 text-xs text-sky-500/60">
+              <span>Supports emojis! 🎉</span>
+              <span><span id="char-count">0</span> characters</span>
+            </div>
+          </div>
+
+          <!-- Summary -->
+          <div class="glass rounded-2xl p-5 mb-6">
+            <h3 class="font-semibold text-sky-800 mb-4">Summary</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-white/30 rounded-xl p-4 text-center">
+                <span class="text-3xl block mb-2">👥</span>
+                <p class="text-2xl font-bold text-sky-800" id="summary-contacts">0</p>
+                <p class="text-sky-600/80 text-sm">Contacts</p>
+              </div>
+              <div class="bg-white/30 rounded-xl p-4 text-center">
+                <span class="text-3xl block mb-2">💬</span>
+                <p class="text-2xl font-bold text-sky-800" id="summary-chars">0</p>
+                <p class="text-sky-600/80 text-sm">Characters</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Progress -->
+          <div id="progress-section" class="glass rounded-2xl p-5 mb-6 hidden">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-6 h-6 loader"></div>
+              <span class="text-sky-700 font-medium">Sending messages...</span>
+            </div>
+            <div class="h-3 bg-white/30 rounded-full overflow-hidden">
+              <div id="progress-bar" class="h-full bg-gradient-to-r from-sky-500 to-cyan-400 transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <p class="text-sky-600/80 text-sm mt-2 text-center">
+              <span id="progress-text">0</span>% complete - Sending to <span id="current-number">...</span>
+            </p>
+          </div>
+
+          <!-- Results -->
+          <div id="results-section" class="glass rounded-2xl p-5 mb-6 hidden">
+            <div class="flex items-center gap-3 mb-4">
+              <span class="text-3xl">🎉</span>
+              <h3 class="font-semibold text-sky-800">Sending Complete!</h3>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-emerald-100/50 rounded-xl p-4 text-center">
+                <p class="text-2xl font-bold text-emerald-600" id="sent-count">0</p>
+                <p class="text-emerald-700/80 text-sm">Sent ✅</p>
+              </div>
+              <div class="bg-red-100/50 rounded-xl p-4 text-center">
+                <p class="text-2xl font-bold text-red-600" id="failed-count">0</p>
+                <p class="text-red-700/80 text-sm">Failed ❌</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Navigation -->
+          <div class="flex justify-between">
+            <button id="back-btn" onclick="goToStep(2)" class="glass-button flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sky-600">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+              Back
+            </button>
+            <button id="send-btn" onclick="startSending()" class="flex items-center gap-2 px-8 py-3 rounded-xl font-semibold bg-gradient-to-r from-emerald-500 to-teal-400 text-white shadow-lg shadow-emerald-500/30">
+              <span>🚀</span>
+              Send Messages
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <p class="text-center text-sky-600/60 text-sm mt-6">
+        Made with 💙 | WhatsApp Bulk Sender Desktop
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+    
+    // State
+    let currentStep = 1;
+    let isConnected = false;
+    let contacts = [];
+    let isSending = false;
+
+    // Window controls
+    function minimizeWindow() { ipcRenderer.invoke('minimize-window'); }
+    function maximizeWindow() { ipcRenderer.invoke('maximize-window'); }
+    function closeWindow() { ipcRenderer.invoke('close-window'); }
+
+    // WhatsApp connection
+    async function openWhatsApp() {
+      const btn = document.getElementById('connect-btn');
+      btn.innerHTML = '<div class="w-5 h-5 loader mr-2"></div> Opening...';
+      btn.disabled = true;
+
+      await ipcRenderer.invoke('open-whatsapp');
+      
+      // Start checking for connection
+      checkConnection();
+    }
+
+    async function checkConnection() {
+      const isReady = await ipcRenderer.invoke('check-whatsapp-ready');
+      
+      if (isReady) {
+        isConnected = true;
+        document.getElementById('connect-status').innerHTML = `
+          <div class="text-center">
+            <span class="text-5xl mb-3 block">✅</span>
+            <p class="text-emerald-600 font-medium">Connected!</p>
+          </div>
+        `;
+        document.getElementById('connect-btn').innerHTML = '✅ Connected';
+        document.getElementById('connect-btn').classList.add('bg-emerald-500/20', 'text-emerald-700');
+        enableNextButton(1);
+      } else {
+        setTimeout(checkConnection, 2000);
+      }
+    }
+
+    // Step navigation
+    function goToStep(step) {
+      // Hide all steps
+      document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
+      
+      // Show target step
+      document.getElementById(`step${step}`).classList.remove('hidden');
+      
+      // Update indicators
+      for (let i = 1; i <= 3; i++) {
+        const indicator = document.getElementById(`step${i}-indicator`);
+        const label = document.getElementById(`step${i}-label`);
+        const line = document.getElementById(`step${i}-line`);
+        
+        indicator.className = 'w-11 h-11 rounded-full flex items-center justify-center font-semibold ';
+        
+        if (i < step) {
+          indicator.className += 'step-completed text-white';
+          indicator.innerHTML = '✓';
+          if (line) line.className = 'w-14 h-1 mx-2 rounded-full bg-emerald-400';
+          label.className = 'text-emerald-600 font-medium';
+        } else if (i === step) {
+          indicator.className += 'step-active text-white';
+          indicator.innerHTML = `<span>${i}</span>`;
+          if (line) line.className = 'w-14 h-1 mx-2 rounded-full bg-white/30';
+          label.className = 'text-sky-700 font-medium';
+        } else {
+          indicator.className += 'bg-white/30 text-sky-600';
+          indicator.innerHTML = `<span>${i}</span>`;
+          if (line) line.className = 'w-14 h-1 mx-2 rounded-full bg-white/30';
+          label.className = 'text-sky-600/60';
+        }
+      }
+
+      currentStep = step;
+      updateSummary();
+    }
+
+    function enableNextButton(step) {
+      const btn = document.getElementById(`step${step}-next`);
+      btn.disabled = false;
+      btn.className = 'flex items-center gap-2 px-6 py-3 rounded-xl font-semibold bg-gradient-to-r from-sky-500 to-cyan-400 text-white shadow-lg shadow-sky-500/30 hover:shadow-xl';
+    }
+
+    // Contacts management
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target.result;
+        const lines = text.split('\n');
+        const header = lines[0].toLowerCase();
+        
+        let numberIndex = 0;
+        const headers = header.split(',').map(h => h.trim());
+        numberIndex = headers.findIndex(h => h === 'number' || h === 'phone');
+        
+        for (let i = 1; i < lines.length; i++) {
+          const values = lines[i].split(',');
+          if (values[numberIndex] && values[numberIndex].trim()) {
+            contacts.push({
+              number: values[numberIndex].trim().replace(/"/g, ''),
+              status: 'pending'
+            });
+          }
+        }
+        
+        updateContactsList();
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    function addNumber() {
+      const input = document.getElementById('new-number');
+      const number = input.value.trim();
+      
+      if (number) {
+        contacts.push({ number, status: 'pending' });
+        input.value = '';
+        updateContactsList();
+      }
+    }
+
+    function removeContact(index) {
+      contacts.splice(index, 1);
+      updateContactsList();
+    }
+
+    function clearContacts() {
+      contacts = [];
+      updateContactsList();
+    }
+
+    function formatPhoneNumber(number) {
+      let cleaned = number.replace(/[\s\-\.]/g, '');
+      if (cleaned.startsWith('94')) return '+' + cleaned;
+      if (cleaned.startsWith('0')) return '+94' + cleaned.slice(1);
+      if (cleaned.startsWith('7')) return '+94' + cleaned;
+      return '+94' + cleaned;
+    }
+
+    function updateContactsList() {
+      const section = document.getElementById('contacts-section');
+      const list = document.getElementById('contacts-list');
+      const count = document.getElementById('contact-count');
+      
+      if (contacts.length > 0) {
+        section.classList.remove('hidden');
+        count.textContent = contacts.length;
+        
+        list.innerHTML = contacts.map((c, i) => `
+          <div class="contact-item flex items-center justify-between bg-white/30 rounded-xl px-4 py-3">
+            <div class="flex items-center gap-3">
+              <div class="w-2 h-2 rounded-full ${
+                c.status === 'sent' ? 'bg-emerald-400' :
+                c.status === 'failed' ? 'bg-red-400' :
+                c.status === 'sending' ? 'bg-yellow-400' :
+                'bg-sky-400'
+              }"></div>
+              <span class="text-sky-800 font-mono text-sm">${formatPhoneNumber(c.number)}</span>
+            </div>
+            <button onclick="removeContact(${i})" class="text-red-400 hover:text-red-500 text-lg">✕</button>
+          </div>
+        `).join('');
+        
+        enableNextButton(2);
+      } else {
+        section.classList.add('hidden');
+        document.getElementById('step2-next').disabled = true;
+        document.getElementById('step2-next').className = 'flex items-center gap-2 px-6 py-3 rounded-xl font-semibold bg-gray-300/50 text-gray-500 cursor-not-allowed';
+      }
+      
+      updateSummary();
+    }
+
+    function updateSummary() {
+      const message = document.getElementById('message-input').value;
+      document.getElementById('char-count').textContent = message.length;
+      document.getElementById('summary-contacts').textContent = contacts.length;
+      document.getElementById('summary-chars').textContent = message.length;
+      document.getElementById('send-count').textContent = contacts.length;
+    }
+
+    // Message input
+    document.getElementById('message-input').addEventListener('input', updateSummary);
+
+    // Send messages
+    async function startSending() {
+      const message = document.getElementById('message-input').value.trim();
+      if (!message || contacts.length === 0) return;
+
+      isSending = true;
+      document.getElementById('send-btn').disabled = true;
+      document.getElementById('send-btn').innerHTML = '<div class="w-5 h-5 loader mr-2"></div> Sending...';
+      document.getElementById('back-btn').disabled = true;
+      document.getElementById('progress-section').classList.remove('hidden');
+      document.getElementById('results-section').classList.add('hidden');
+
+      let sent = 0;
+      let failed = 0;
+
+      for (let i = 0; i < contacts.length; i++) {
+        const contact = contacts[i];
+        contacts[i].status = 'sending';
+        updateContactsList();
+        
+        document.getElementById('current-number').textContent = formatPhoneNumber(contact.number);
+        document.getElementById('progress-bar').style.width = `${((i + 1) / contacts.length) * 100}%`;
+        document.getElementById('progress-text').textContent = Math.round(((i + 1) / contacts.length) * 100);
+
+        const result = await ipcRenderer.invoke('send-message', {
+          phoneNumber: contact.number,
+          message: message
+        });
+
+        if (result.success) {
+          contacts[i].status = 'sent';
+          sent++;
+        } else {
+          contacts[i].status = 'failed';
+          failed++;
+        }
+        
+        updateContactsList();
+
+        // Delay between messages
+        if (i < contacts.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 5000));
+        }
+      }
+
+      // Show results
+      document.getElementById('progress-section').classList.add('hidden');
+      document.getElementById('results-section').classList.remove('hidden');
+      document.getElementById('sent-count').textContent = sent;
+      document.getElementById('failed-count').textContent = failed;
+
+      document.getElementById('send-btn').disabled = false;
+      document.getElementById('send-btn').innerHTML = '🚀 Send Messages';
+      document.getElementById('back-btn').disabled = false;
+      isSending = false;
+    }
+
+    // Initialize
+    updateSummary();
+  </script>
+</body>
+</html>

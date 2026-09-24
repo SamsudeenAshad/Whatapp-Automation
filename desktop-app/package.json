@@ -1,0 +1,31 @@
+{
+  "name": "whatsapp-bulk-sender-desktop",
+  "version": "1.0.0",
+  "description": "WhatsApp Bulk Message Sender - Desktop App with beautiful UI",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "author": "Samsudeen Ashad",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "electron-store": "^8.1.0",
+    "puppeteer-core": "^21.7.0"
+  },
+  "devDependencies": {
+    "electron": "^28.1.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.whatsapp.bulksender",
+    "productName": "WhatsApp Bulk Sender",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    }
+  }
+}

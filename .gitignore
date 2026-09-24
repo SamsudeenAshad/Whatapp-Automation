@@ -237,3 +237,38 @@ contacts.csv
 
 # WhatsApp session/browser temp
 *.session
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Next.js
+.next/
+out/
+.vercel
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Electron
+release/
+*.unpacked/
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# Testing
+coverage/
+.nyc_output/
+
+# Package manager locks (optional - uncomment if you don't want to track)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
